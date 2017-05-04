@@ -7,7 +7,7 @@ import subprocess
 from subprocess import Popen, PIPE
 import argparse
 
-
+#https://www.ibm.com/developerworks/aix/library/au-multiprocessing/index.html
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("path_to_dataset", help="path to dataset")

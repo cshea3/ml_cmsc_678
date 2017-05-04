@@ -22,13 +22,6 @@ if __name__ == '__main__':
             print(feature + ": " + str(len(data_set_features_values[feature])))
     print("--------------------------------------------------")
 
-    # create output directory of normalized dataset
-    # delete directory first if already exists
-    print("CREATING OUTPUT DIRECTORY FOR NORMALIZED DATASET: " +  destination_dir)
-    if os.path.exists(destination_dir):
-        print("\tdirectory already exists - overwriting...")
-        shutil.rmtree(destination_dir)
-    os.mkdir(destination_dir)
 
     # open every .json file and write normalized version to new folder
     for filename in glob.iglob(args.path_to_dataset + '/**/*.json', recursive=True):
