@@ -1,0 +1,21 @@
+# how to run:
+# the first script will collect all of the possible features and values in the entire dataset
+# the second script will then normalize the dataset (convert each value into a vector of 1 or 0)
+# the third script will build a 2-D matrix of data from the normalized dataset (of whatever subset of features is desired), which can then be used in the model for training
+# can use the small sample_dataset/ folder with 3 files for testing (eventually run on main dataset)
+# when run on main dataset - result will be 15GB in size
+# output directory is "dataset_normalized"
+
+python malware_dataset_feature_and_value_extractor.py sample_dataset/ all_possible_features_and_values.json
+python normalize_dataset.py sample_dataset/ all_possible_features_and_values.json 
+python combine_feature_vectors_and_build_model.py dataset_normalized/ all_possible_features_and_values.json features_to_train.txt
+
+# ---useful commands for json file manipulation 
+# extract field from json file:
+cat 2693_uiayp.json | jq -r '.properties.label'
+
+# extract field from json and display each value (sorted) on a single line:
+cat 2693_uiayp.json | jq -r '.properties.reg_read' | sort | tr " " "\n"
+
+# convert json into pretty printed version (keys sorted alphabetically) that is easier to read
+cat 900_wsuay.json | python -m json.tool --sort-keys
