@@ -33,21 +33,21 @@ def find_features(path_to_dataset,label_name,path_to_list_of_all_features,write_
                     if count == 0:
                         feature_list=np.append(feature_list,feature)
                     if feature not in malware_sample:
-                        #row = np.append(row,label)
                         row = np.append(row,0)
                     else:
                         row = np.append(row,np.sum(np.array(malware_sample[feature])))
-                #matrix = np.vstack((matrix,row))
-                if matrix.size == 0: matrix=row
-                else: matrix=np.vstack((matrix,row))
-        count = 1
+    count = 1
+    
+    if matrix.size == 0: matrix=row
+    else: matrix=np.vstack((matrix,row))
+   
     #sum up all the columns in the matrix
     sumation=np.sum(matrix,axis=0)
     
-    apt_file = open(write_to_file,'w')
-    json.dump(matrix.tolist(),write_to_file)
-    json.dump(feature_list.tolist(),write_to_file)
-    apt_file.close()
+    value_file = open(write_to_file,'w')
+    json.dump(matrix.tolist(),value_file)
+    json.dump(feature_list.tolist(),value_file)
+    value_file.close()
 
     return sumation,feature_list
 
@@ -84,12 +84,11 @@ if __name__ == '__main__':
     #create list of files to write to
     file_list = np.array([])
     for iter_ in range(0,4):
-        v = 'feature_file_'+str(iter_)+'.json'
+        file_list=np.append(file_list,'feature_file_'+str(iter_)+'.json')
         #file_list = np.append(file_list,
-        print(v)
-        print(class_type)
+    print(file_list)
     for iter_ in range(0,4):     
-        p=np.append(p,Process(target=find_features, args=(args.path_to_normalized_dataset,class_type[iter_],args.path_to_all_possible_feature_values_filename,v[iter_])))
+        p=np.append(p,Process(target=find_features, args=(args.path_to_normalized_dataset,class_type[iter_],args.path_to_all_possible_feature_values_filename,file_list[iter_])))
         print(p)
 	
         p[int(iter_)].start()

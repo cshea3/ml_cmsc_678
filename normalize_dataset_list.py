@@ -15,7 +15,7 @@ import glob
 def parse_files(path_set,destination_dir,list_of_files,data_set_features_values):
     print("IN the parse_file")
     for items in list_of_files:
-        print(path_set+items)
+        print("Path and folder name are " + str(path_set+items))
         for filename in glob.iglob(path_set+items+'/*.json',recursive=True):
             print(filename)
             with open(filename) as data_file:
