@@ -120,11 +120,28 @@ def train_svm(X, y):
     print('{}: {}'.format("number of classes", len(set(y))))
     print('{}: {}'.format("number of samples", len(y)))
     
+    np.random.seed(0)
+    order = np.random.permutation(len(X))
+    X = X[order]
+    print(X)
+    Y = y[order]
+    
+    X_train = X[:.9*len(X)]
+    Y_train = Y[:.9*len(Y)]
+    X_test  = X[.9 * len(X)]
+    Y_test  = Y[.9 * len(Y)]
+
+    
+    
+     
     print("*************\n")
     
     # account for 'unbalanced' with class_weight
     clf = svm.SVC(kernel='linear', class_weight='balanced', C = 1.0)
-
+    
+    clf.fit(X_train, Y_train)
+    predict_labels = clf.predict(X_test)
+    print(predict_labels)
     # cross validation scores (10-fold)
     scores = cross_val_score(clf, X, y, cv=10)
     print("SCORES:")
@@ -133,7 +150,7 @@ def train_svm(X, y):
     print()
 
     clf.fit(X,y)
-
+    
     print('{} {}'.format("clf:", clf))
     print()
     
