@@ -120,7 +120,65 @@ def build_matrix_from_selected_features_list(path_to_dataset,list_of_dataset, pa
     queue_label.put(label)
     print(label)
     queue_feature.put(feature_vector_count)
-    print("Data placed in queues.")		 
+    print("Data placed in queues.")		
+
+def build_matrix_from_selected_features_list_file(path_to_dataset,list_of_dataset, path_to_list_of_features_to_train, max_columns, thread_num, postfix):
+    features_to_use = sorted([line.rstrip() for line in open(path_to_list_of_features_to_train)])
+    feature_vector_count = np.array([])
+    # 2D matrix that can be used in the model
+    data_matrix = np.array([])
+    label = np.array([])
+    count = 0
+    #print("IN function here is the work list" + str(list_of_dataset))
+    for folder_name in list_of_dataset:
+        for filename in glob.iglob(path_to_dataset + folder_name, recursive=True):
+            with open(filename) as data_file:
+                print("PROCESSING: " + filename)
+                malware_sample = json.load(data_file)
+                feature_vector_count = np.array([])
+                matrix = np.array([])
+                row = np.array([])
+                for feature in features_to_use:
+                    if count==0: feature_vector_count = np.hstack((feature_vector_count, np.array([features_and_vector_lengths[feature]]))) 
+                    #before processing find the feature set with the
+                    # if feature is not present in sample, pad feature vector with zeros
+                    if feature not in malware_sample:
+                        vector_len = features_and_vector_lengths[feature]
+                        #print("  " + feature + ": " + "NOT present in " + filename + " (padding feature vector with " + str(vector_len) + " zeros)")
+                        temp = np.zeros(vector_len)
+                        row = np.hstack((row,temp))
+                        #to build a 2D matrix use this
+                        #if(matrix.size ==0):
+                        #    matrix=temp
+                        #else:
+                        #    matrix=np.vstack((matrix,temp))
+                    else:
+                        features = np.array(malware_sample[feature])
+                        #using a 2D matrix set max row of zeros
+                        #temp = np.zeros(50)
+                        #copy in the features starting at the 0 position 
+                        #temp[:len(features)]=features
+                        #if(matrix.size ==0):
+                        #    matrix=temp
+                        #else:
+                        #    matrix=np.vstack((matrix,temp))
+                        row=np.hstack((row,features))
+                    #print(row)    
+                class_label = convert_label(malware_sample['label'])
+                label=np.hstack((label,class_label))
+
+                # append X to matrix
+                if data_matrix.size == 0:
+                   data_matrix=row
+                else:
+                   data_matrix=np.vstack((data_matrix,row))
+            if count == 0: print(feature_vector_count)
+            count = 1 
+    with open('data_matrix_'+str(thread_num)+'_'+postfix+'.pckl','wb') as file_h:
+        cPickle.dump(data_matrix,file_h)
+    with open('label_list_'+str(thread_num)+'_'+postfix+'.pckl','wb') as file_h:
+        cPickle.dump(label,file_h)
+        		 
 def build_matrix_from_selected_features(path_to_dataset, path_to_list_of_features_to_train, max_columns):
     # read in desired features for use in the model from text file and sort alphabetically
     features_to_use = sorted([line.rstrip() for line in open(path_to_list_of_features_to_train)])
