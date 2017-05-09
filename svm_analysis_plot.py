@@ -134,16 +134,16 @@ if __name__ == '__main__':
     
     threads_list = list()
     type_of_svm = ['linear','rbf','poly']
-    c_ = [.1,1,10,100]
+    c_ = [.01,.1,1,10,100]
     
     #for x in type_of_svm:
-    for y in c_:
-        t = Process(target=svm_processing, args=('linear', data_train, labels_train,data_test,labels_test,args.filename,y))
-        t.start()
-        threads_list.append(t)
+    #for y in c_:
+    #    t = Process(target=svm_processing, args=('linear', data_train, labels_train,data_test,labels_test,args.filename,y))
+    #    t.start()
+    #    threads_list.append(t)
     
-    for t in threads_list:
-        t.join()
+    #for t in threads_list:
+    #    t.join()
 
     #for y in c_:
     #t = Process(target=svm_processing, args=('rbf', data_train, labels_train,data_test,labels_test,args.filename,.1))
@@ -157,16 +157,39 @@ if __name__ == '__main__':
     #t.join()
     #t2.join()
 
-    #t4 = Process(target=svm_processing, args=('rbf', data_train, labels_train,data_test,labels_test,args.filename,10))
-    #t3.start()
+    t3 = Process(target=svm_processing, args=('rbf', data_train, labels_train,data_test,labels_test,args.filename,10))
+    t3.start()
     #threads_list.append(t)
         
-    #t4 = Process(target=svm_processing, args=('rbf', data_train, labels_train,data_test,labels_test,args.filename,100))
-    #t4.start()
+    t4 = Process(target=svm_processing, args=('rbf', data_train, labels_train,data_test,labels_test,args.filename,100))
+    t4.start()
     #threads_list.append(t)
     
-    #t3.join()
-    #t4.join()
+    t3.join()
+    t4.join()
+
+
+
+    #for y in c_:
+    t = Process(target=svm_processing, args=('poly', data_train, labels_train,data_test,labels_test,args.filename,.1))
+    t.start()
+
+    t2 = Process(target=svm_processing, args=('poly', data_train, labels_train,data_test,labels_test,args.filename,1))
+    t2.start()
+
+    t.join()
+    t2.join()
+
+    t = Process(target=svm_processing, args=('poly', data_train, labels_train,data_test,labels_test,args.filename,10))
+    t.start()
+
+    t2 = Process(target=svm_processing, args=('poly', data_train, labels_train,data_test,labels_test,args.filename,100))
+    t2.start()
+
+    t.join()
+    t2.join()
+
+
 
     #for t in threads_list:
     #    t.join()

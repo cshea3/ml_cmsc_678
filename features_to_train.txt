@@ -1,3 +1,2 @@
 reg_read
 api_resolv
-reg_write

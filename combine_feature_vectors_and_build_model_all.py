@@ -115,11 +115,7 @@ def build_matrix_from_selected_features_list(path_to_dataset,list_of_dataset, pa
             if count == 0: print(feature_vector_count)
             count = 1 
     print("Placing data in queues") 
-    print(data_matrix)       
-    queue_data.put(data_matrix)
-    queue_label.put(label)
-    print(label)
-    queue_feature.put(feature_vector_count)
+
     print("Data placed in queues.")		
 
 def build_matrix_from_selected_features_list_file(path_to_dataset,list_of_dataset, path_to_list_of_features_to_train, max_columns, thread_num, postfix):
@@ -250,7 +246,7 @@ if __name__ == '__main__':
     data=np.array([])
     labels=np.array([])
     max_columns = get_all_features_and_vector_lengths(args.path_to_all_possible_feature_values_filename)
-    data,labels,feature_vector_count = build_matrix_from_selected_features(args.path_to_normalized_dataset, args.path_to_list_of_features_to_train, max_columns)
+    #data,labels,feature_vector_count = build_matrix_from_selected_features(args.path_to_normalized_dataset, args.path_to_list_of_features_to_train, max_columns)
 
     with open('dump_of_data_vector_'+str(args.filename)+'.pkl','wb') as fid:
         cPickle.dump(data,fid)
@@ -258,18 +254,18 @@ if __name__ == '__main__':
     with open('dump_of_labels_vector_'+str(args.filename)+'.pkl','wb') as fid:
         cPickle.dump(labels,fid)
 
-    #onlyFolders = [f for f in os.listdir(args.path_to_normalized_dataset)]
-    #number_of_folders = int(len(onlyFolders))
-    #folders_per_thread = number_of_folders/(int(args.number_of_threads))
+    onlyFolders = [f for f in os.listdir(args.path_to_normalized_dataset)]
+    number_of_folders = int(len(onlyFolders))
+    folders_per_thread = number_of_folders/(int(args.number_of_threads))
     #print(" number of folders per thread is "+str(folders_per_thread))
     #remainder = 0
-    #threads = int(args.number_of_threads)
-    #if (number_of_folders%(threads) != 0):
-    #    remainder = number_of_folders%threads
+    threads = int(args.number_of_threads)
+    if (number_of_folders%(threads) != 0):
+        remainder = number_of_folders%threads
     
     #[[] for dummy in xrange(int(args.number_of_threads))]
-    #work_list = [onlyFolders[i:i+int(folders_per_thread)] for i in range(0, len(onlyFolders), int(folders_per_thread))]
- 
+    work_list = [onlyFolders[i:i+int(folders_per_thread)] for i in range(0, len(onlyFolders), int(folders_per_thread))]
+    print(" HERE IS THE WORK LIST LENGTH" + str(len(work_list)))
     #speed up the dict creation
     #list_of_data_queues = [] 
     #list_of_label_queues = []
@@ -279,16 +275,16 @@ if __name__ == '__main__':
 
     #que_feature_vector_count = Queue()
    
-    #threads_list = list()
-
-    #for x in range(0,int(args.number_of_threads)):
-    #    t = Process(target=build_matrix_from_selected_features_list, args=(args.path_to_normalized_dataset, work_list[x], args.path_to_list_of_features_to_train, max_columns,list_of_data_queues[x],list_of_label_queues[x],que_feature_vector_count))
-    #    t.start()
-    #    threads_list.append(t)
+    threads_list = list()
+    #build_matrix_from_selected_features_list_file(path_to_dataset,list_of_dataset, path_to_list_of_features_to_train, max_columns, thread_num, postfix):
+    for idx, x in enumerate(work_list):
+        t = Process(target=build_matrix_from_selected_features_list_file, args=(args.path_to_normalized_dataset, x, args.path_to_list_of_features_to_train, 0,idx,args.filename))
+        t.start()
+        threads_list.append(t)
    
     #for x in range(0,int(args.number_of_threads)):
     #    #while not list_of_data_queues[x].empty():
-    #    print("waiting for data....")
+    #   print("waiting for data....")
     #    data=np.append(data,list_of_data_queues[x].get(True))
     #    print(data)
     #print("Received data is " + str(data))
@@ -299,166 +295,6 @@ if __name__ == '__main__':
     #    label=np.append(label,list_of_label_queues[x].get(True))
 
     #print("Received labels are " + str(labels))
-    #for t in threads_list:
-    #    t.join()
-    n_sample = len(labels)
-
-
-    print("There are " +str(data) + " data samples")
-    print("There are " +str(labels) + " labels samples")
-
-    np.random.seed(0)
-    order = np.random.permutation(n_sample)
-    data = data[order]
-    labels = labels[order].astype(np.float)
-    print(labels)
-
-    data_train = data[:.9 * n_sample]
-    labels_train = labels[:.9 * n_sample]
-    data_test = data[.9 * n_sample:]
-    labels_test = labels[.9 * n_sample:]
-    with open('dump_of_data_train_'+str(args.filename)+'.pkl','wb') as fid:
-        cPickle.dump(data_train,fid)
-    with open('dump_of_label_train_'+str(args.filename)+'.pkl','wb') as fid:
-        cPickle.dump(labels_train,fid)
-    with open('dump_of_data_test_'+str(args.filename)+'.pkl','wb') as fid:
-        cPickle.dump(data_test,fid)
-    with open('dump_of_label_test_'+str(args.filename)+'.pkl','wb') as fid:
-        cPickle.dump(label_test,fid)
-    #shape_l = labels.shape
-    labels_01 = np.zeros(shape=labels.shape)
-    np.copyto(labels_01,labels)
-    #for the first attempt only look for class 0 and not class 0
-    for x in np.nditer(labels_01):
-        if x > 0: labels_01[int(x)]=1
-
-    print(labels_01)
-    data_train_01 = data[:.9 * n_sample]
-    labels_train_01 = labels[:.9 * n_sample]
-    data_test_01 = data[.9 * n_sample:]
-    labels_test_01 = labels[.9 * n_sample:]
-
-    #begin to trainup the dataset
-    # TODO - train SVM using X and Y from 'data'
-    clf = svm.SVC(kernel='linear', gamma=10)
-    #send the data for training
-    clf.fit(data_train_01, labels_train_01)
-    #retrive the predicited labesls
-    predict_labels_01 = clf.predict(data_test_01)
-    with open('dump_of_svm01_'+str(args.filename)+'.pkl','wb') as fid:
-        cPickle.dump(clf,fid)
-    
-    with open('predicted_01'+str(args.filename)+'.pckl','wb') as pckle_f:
-        cPickle.dump(predict_labels_01,pckle_f)
-
-    ################## Linear
-    print("Entering Linear SVM .....")
-    clf = svm.SVC(kernel='linear',class_weight='balanced',C=.1)
-    clf.fit(data_train,labels_train)
-    with open('dump_of_svm_c.1_'+str(args.filename)+'.pkl','wb') as fid:
-        cPickle.dump(clf,fid)
-    predict_labels = clf.predict(data_test)
-    with open('predicted_c.1_'+str(args.filename)+'.pckl','wb') as pckle_f: 
-        cPickle.dump(predict_labels,pckle_f)
-    
-    clf = svm.SVC(kernel='linear',class_weight='balanced',C=1)
-    clf.fit(data_train,labels_train)
-    with open('dump_of_svm_c1_'+str(args.filename)+'.pkl','wb') as fid:
-        cPickle.dump(clf,fid)
-    predict_labels = clf.predict(data_test)
-    with open('predicted_c1_'+str(args.filename)+'.pckl','wb') as pckle_f:
-        cPickle.dump(predict_labels,pckle_f)
-
-
-    clf = svm.SVC(kernel='linear',class_weight='balanced',C=10)
-    clf.fit(data_train,labels_train)
-    with open('dump_of_svm_c10_'+str(args.filename)+'.pkl','wb') as fid:
-        cPickle.dump(clf,fid)
-    predict_labels = clf.predict(data_test)
-    with open('predicted_c10_'+str(args.filename)+'.pckl','wb') as pckle_f:
-        cPickle.dump(predict_labels,pckle_f)
-
-
-    clf = svm.SVC(kernel='linear',class_weight='balanced',C=100)
-    clf.fit(data_train,labels_train)
-    with open('dump_of_svm_c100_'+str(args.filename)+'.pkl','wb') as fid:
-        cPickle.dump(clf,fid)
-    predict_labels = clf.predict(data_test)
-    with open('predicted_c100_'+str(args.filename)+'.pckl','wb') as pckle_f:
-        cPickle.dump(predict_labels,pckle_f)
-
-    ################## RBF
-    print("Entering RBF SVM ....")
-    clf = svm.SVC(kernel='rbf',class_weight='balanced',gamma=0.7, C=.1)
-    clf.fit(data_train,labels_train)
-    with open('dump_of_svm_rbf_c.1_'+str(args.filename)+'.pkl','wb') as fid:
-        cPickle.dump(clf,fid)
-    predict_labels = clf.predict(data_test)
-    with open('predicted_rbf_c.1_'+str(args.filename)+'.pckl','wb') as pckle_f: 
-        cPickle.dump(predict_labels,pckle_f)
+    for t in threads_list:
+        t.join()
  
-    clf = svm.SVC(kernel='rbf',class_weight='balanced',gamma=0.7, C=1)
-    clf.fit(data_train,labels_train)
-    with open('dump_of_svm_rbf_c1_'+str(args.filename)+'.pkl','wb') as fid:
-        cPickle.dump(clf,fid)
-    predict_labels = clf.predict(data_test)
-    with open('predicted_rbf_c1_'+str(args.filename)+'.pckl','wb') as pckle_f: 
-        cPickle.dump(predict_labels,pckle_f)
-     
-    clf = svm.SVC(kernel='rbf',class_weight='balanced',gamma=0.7, C=10)
-    clf.fit(data_train,labels_train)
-    with open('dump_of_svm_rbf_c10_'+str(args.filename)+'.pkl','wb') as fid:
-        cPickle.dump(clf,fid)
-    predict_labels = clf.predict(data_test)
-    with open('predicted_rbf_c10_'+str(args.filename)+'.pckl','wb') as pckle_f: 
-        cPickle.dump(predict_labels,pckle_f)
-
-    clf = svm.SVC(kernel='rbf',class_weight='balanced',gamma=0.7, C=100)
-    clf.fit(data_train,labels_train)
-    with open('dump_of_svm_rbf_c100_'+str(args.filename)+'.pkl','wb') as fid:
-        cPickle.dump(clf,fid)
-    predict_labels = clf.predict(data_test)
-    with open('predicted_rbf_c100_'+str(args.filename)+'.pckl','wb') as pckle_f: 
-        cPickle.dump(predict_labels,pckle_f)
- 
-    #################### Poly
-    print("Entering Poly SVM ...." )
-    clf = svm.SVC(kernel='poly',class_weight='balanced',gamma=0.7, C=.1)
-    clf.fit(data_train,labels_train)
-    with open('dump_of_svm_poly_c.1_'+str(args.filename)+'.pkl','wb') as fid:
-        cPickle.dump(clf,fid)
-    predict_labels = clf.predict(data_test)
-    with open('predicted_poly_c.1_'+str(args.filename)+'.pckl','wb') as pckle_f: 
-        cPickle.dump(predict_labels,pckle_f)
- 
-    clf = svm.SVC(kernel='poly',class_weight='balanced',gamma=0.7, C=1)
-    clf.fit(data_train,labels_train)
-    with open('dump_of_svm_poly_c1_'+str(args.filename)+'.pkl','wb') as fid:
-        cPickle.dump(clf,fid)
-    predict_labels = clf.predict(data_test)
-    with open('predicted_poly_c1_'+str(args.filename)+'.pckl','wb') as pckle_f: 
-        cPickle.dump(predict_labels,pckle_f)
-     
-    clf = svm.SVC(kernel='poly',class_weight='balanced',gamma=0.7, C=10)
-    clf.fit(data_train,labels_train)
-    with open('dump_of_svm_poly_c10_'+str(args.filename)+'.pkl','wb') as fid:
-        cPickle.dump(clf,fid)
-    predict_labels = clf.predict(data_test)
-    with open('predicted_poly_c10_'+str(args.filename)+'.pckl','wb') as pckle_f: 
-        cPickle.dump(predict_labels,pckle_f)
-
-    clf = svm.SVC(kernel='poly',class_weight='balanced',gamma=0.7, C=100)
-    clf.fit(data_train,labels_train)
-    with open('dump_of_svm_poly_c100_'+str(args.filename)+'.pkl','wb') as fid:
-        cPickle.dump(clf,fid)
-    predict_labels = clf.predict(data_test)
-    with open('predicted_poly_c100_'+str(args.filename)+'.pckl','wb') as pckle_f: 
-        cPickle.dump(predict_labels,pckle_f)
-
-    #plt.title('inear')
-    #plt.show()
-    #print("Classification report for classifier %s:\n%s\n"
-    #  % (clf, metrics.classification_report(labels_test_01, predicted)))
-    #print("Confusion matrix:\n%s" % metrics.confusion_matrix(labels_test_01, predicted))
-
-

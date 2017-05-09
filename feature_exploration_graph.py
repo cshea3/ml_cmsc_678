@@ -52,3 +52,9 @@ if __name__ == '__main__':
         sorted_x = [(k,data_to_analysize[k]) for k in sorted(data_to_analysize, key=data_to_analysize.get, reverse=True)]
         #sorted_x = sorted(data_to_analysize.items(), key=get(),reverse=True)
         print(list(sorted_x)[:(int(args.top_occurances))])
+        value = list(sorted_x)[:(int(args.top_occurances))]
+        with open('feature_file'+args.file_name+".txt", 'w') as filewrite:
+            for item in list(sorted_x)[:(int(args.top_occurances))]:
+                value,num = item
+                if num != 0:
+                    filewrite.write("%s\n" % value)
